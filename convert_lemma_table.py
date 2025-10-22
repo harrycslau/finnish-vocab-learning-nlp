@@ -8,14 +8,14 @@ def create_schema(conn):
     cur = conn.cursor()
     cur.executescript("""
     -- Table for the surface->lemma mapping
-    CREATE TABLE IF NOT EXISTS fi-FI_lemma_lookup (
+    CREATE TABLE IF NOT EXISTS fi_FI_lemma_lookup (
       surface_form TEXT NOT NULL,
       pos TEXT NOT NULL,
       lemma TEXT NOT NULL,
       PRIMARY KEY(surface_form, pos)
     );
     -- An index for when POS is not known
-    CREATE INDEX IF NOT EXISTS idx_surface_form ON fi_lemma_lookup(surface_form);
+    CREATE INDEX IF NOT EXISTS idx_surface_form ON fi_FI_lemma_lookup(surface_form);
     """)
     conn.commit()
 
@@ -49,7 +49,7 @@ def write_db(db_path, rows, replace=False):
     try:
         create_schema(conn)
         cur = conn.cursor()
-        insert_sql = "INSERT OR REPLACE INTO fi_lemma_lookup(surface_form, pos, lemma) VALUES (?, ?, ?)"
+        insert_sql = "INSERT OR REPLACE INTO fi_FI_lemma_lookup(surface_form, pos, lemma) VALUES (?, ?, ?)"
         batch_size = 1000
         total = 0
         for i in range(0, len(rows), batch_size):
