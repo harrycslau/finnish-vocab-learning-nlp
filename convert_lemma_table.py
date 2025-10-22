@@ -8,7 +8,7 @@ def create_schema(conn):
     cur = conn.cursor()
     cur.executescript("""
     -- Table for the surface->lemma mapping
-    CREATE TABLE IF NOT EXISTS fi_lemma_lookup (
+    CREATE TABLE IF NOT EXISTS fi-FI_lemma_lookup (
       surface_form TEXT NOT NULL,
       pos TEXT NOT NULL,
       lemma TEXT NOT NULL,
