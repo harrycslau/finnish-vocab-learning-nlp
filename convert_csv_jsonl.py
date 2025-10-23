@@ -20,7 +20,7 @@ def convert_csv_to_jsonl(input_file, output_file):
                 # Iterate over each row in the CSV
                 for row in csv_reader:
                     # Convert the dictionary (row) to a JSON string
-                    json_line = json.dumps(row)
+                    json_line = json.dumps(row, ensure_ascii=False)
                     
                     # Write the JSON string followed by a newline character
                     jsonl_file.write(json_line + '\n')
