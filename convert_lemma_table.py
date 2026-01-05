@@ -3,7 +3,7 @@
 Convert lemma lookup and rank CSVs into a dictionary.sqlite database.
 
 Sample Usage:
-    python convert_lemma_table.py --lookup-csv output/fi_200000_lemmas.csv --rank-csv output/fi_200000_lemmas_rank.csv --output output/dictionary.sqlite
+    python convert_lemma_table.py --lookup-csv output/fi_200000_lemmas.csv --rank-csv output/fi_200000_lemmas_rank.csv --output output/fi_FI_v1.sqlite
 """
 import csv
 import sqlite3
