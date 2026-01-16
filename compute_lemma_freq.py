@@ -5,11 +5,12 @@ Convert the lemma table and the surface frequency list into a lemma frequency CS
 import argparse
 import csv
 from pathlib import Path
-from typing import Dict, Set, Tuple
+from typing import Dict, Set, Tuple, List
 
 
-def load_surface_to_lemma(lemma_csv: Path) -> Tuple[Dict[str, str], Set[str]]:
-    surface_to_lemma: Dict[str, str] = {}
+def load_surface_to_lemma(lemma_csv: Path) -> Tuple[Dict[str, List[str]], Set[str]]:
+    """Load all candidate lemmas for each surface form."""
+    surface_to_lemmas: Dict[str, List[str]] = {}
     lemmas: Set[str] = set()
     with lemma_csv.open("r", encoding="utf-8") as fh:
         reader = csv.reader(fh)
@@ -29,15 +30,20 @@ def load_surface_to_lemma(lemma_csv: Path) -> Tuple[Dict[str, str], Set[str]]:
             lemma = row[2].strip() if len(row) > 2 else ""
             if not lemma:
                 continue
-            surface_to_lemma.setdefault(surface, lemma)
+            if surface not in surface_to_lemmas:
+                surface_to_lemmas[surface] = []
+            if lemma not in surface_to_lemmas[surface]:
+                surface_to_lemmas[surface].append(lemma)
             lemmas.add(lemma)
-    return surface_to_lemma, lemmas
+    return surface_to_lemmas, lemmas
 
 
-def accumulate_lemma_frequencies(surface_map: Dict[str, str], freq_list: Path, lemmas: Set[str]) -> Tuple[Dict[str, int], int, int]:
+def accumulate_lemma_frequencies(surface_map: Dict[str, List[str]], freq_list: Path, lemmas: Set[str]) -> Tuple[Dict[str, int], int, int, Dict[str, int]]:
+    """Accumulate frequencies to all candidate lemmas; return frequency map, counts, and surface-frequency tracking."""
     lemma_freq = {lemma: 0 for lemma in lemmas}
     matched = 0
     unmatched = 0
+    surface_freq_map: Dict[str, int] = {}  # Track frequency per surface for consolidation
     with freq_list.open("r", encoding="utf-8") as fh:
         for raw_line in fh:
             line = raw_line.strip()
@@ -54,13 +60,36 @@ def accumulate_lemma_frequencies(surface_map: Dict[str, str], freq_list: Path, l
                 freq_value = int(freq_str)
             except ValueError:
                 continue
-            lemma = surface_map.get(surface)
-            if lemma is None:
+            candidates = surface_map.get(surface)
+            if candidates is None:
                 unmatched += 1
                 continue
-            lemma_freq[lemma] += freq_value
+            surface_freq_map[surface] = freq_value
+            for lemma in candidates:
+                lemma_freq[lemma] += freq_value
             matched += 1
-    return lemma_freq, matched, unmatched
+    return lemma_freq, matched, unmatched, surface_freq_map
+
+
+def consolidate_to_best_lemmas(lemma_freq: Dict[str, int], surface_map: Dict[str, List[str]], surface_freq_map: Dict[str, int]) -> Dict[str, int]:
+    """For each surface with multiple lemmas, reassign all its frequency to the lemma with the highest total."""
+    consolidated_freq = lemma_freq.copy()
+    for surface, candidates in surface_map.items():
+        if len(candidates) <= 1:
+            continue
+        freq_for_surface = surface_freq_map.get(surface, 0)
+        if freq_for_surface == 0:
+            continue
+        # Find which candidate has the highest total frequency
+        best_lemma = max(candidates, key=lambda lem: lemma_freq.get(lem, 0))
+        # Reassign all this surface's frequency to the best lemma, remove from others
+        for lemma in candidates:
+            if lemma == best_lemma:
+                consolidated_freq[lemma] = lemma_freq[lemma]  # Keep as-is (already has the aggregated count)
+            else:
+                # Subtract this surface's contribution from other candidates
+                consolidated_freq[lemma] = max(0, lemma_freq[lemma] - freq_for_surface)
+    return consolidated_freq
 
 
 def write_lemma_rank_csv(lemma_freq: Dict[str, int], output_csv: Path, include_freq: bool = False) -> int:
@@ -104,7 +133,8 @@ def main() -> None:
     if not lemmas:
         parser.error(f"no lemmas parsed from {lemma_csv}")
 
-    lemma_freq, matched, unmatched = accumulate_lemma_frequencies(surface_map, freq_list, lemmas)
+    lemma_freq, matched, unmatched, surface_freq_map = accumulate_lemma_frequencies(surface_map, freq_list, lemmas)
+    lemma_freq = consolidate_to_best_lemmas(lemma_freq, surface_map, surface_freq_map)
     zero_hits = sum(1 for value in lemma_freq.values() if value == 0)
     rows_written = write_lemma_rank_csv(lemma_freq, Path(args.output), args.include_freq)
 

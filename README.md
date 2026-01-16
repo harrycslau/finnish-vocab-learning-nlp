@@ -19,7 +19,9 @@ Aggregate surface frequencies into lemma-level frequencies and assign ranks.
 ```bash
 python compute_lemma_freq.py --lemma-csv output/fi_200000_lemmas.csv --freq-list freqwords/fi_100k.txt --output output/fi_200000_lemmas_rank.csv
 ```
+*   **Rule**: (from Revision 2) When a surface form has multiple lemmas, the script now credits all frequency to the lemma that accumulated the highest total across candidates.
 *   **Output**: `output/fi_200000_lemmas_rank.csv`
+
 
 ### 3. Export to JSON (App Assets)
 Convert the CSV files to minified JSON with root keys for use in the app.
