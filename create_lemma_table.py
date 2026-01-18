@@ -5,6 +5,7 @@ import csv
 import os
 from pathlib import Path
 import argparse
+import re
 
 try:
     from libvoikko import Voikko
@@ -130,6 +131,36 @@ def analyze_with_voikko(voikko, surface_form):
     analyses = voikko.analyze(surface_form)
     
     for analysis in analyses:
+        # Check if this is a participle first
+        participle = analysis.get('PARTICIPLE', '')
+        
+        # If it's a past participle (past_active, past_passive) or agent participle (present_active, present_passive),
+        # treat it as a VERB and use WORDBASES for the verbal lemma
+        if participle in ['past_active', 'past_passive', 'present_active', 'present_passive', 'agent']:
+            wordbases = analysis.get('WORDBASES', '')
+            if wordbases:
+                # Extract the verbal base from WORDBASES
+                # Format is typically: "+base(lemma)+suffix(+suffix)"
+                match = re.search(r'\+\w+\(([^)]+)\)', wordbases)
+                if match:
+                    verbal_lemma = match.group(1)
+                    results.append(('VERB', verbal_lemma, 'voikko'))
+                    continue
+        
+        # If it's a negative participle (-maton/-mätön forms like "tekemätön"),
+        # treat it as ADJ but use the verbal lemma from WORDBASES
+        if participle == 'negation':
+            wordbases = analysis.get('WORDBASES', '')
+            if wordbases:
+                # Extract the verbal base from WORDBASES
+                # Format is typically: "+teke(tehdä)+mä(+ä)+tön(+tön)"
+                match = re.search(r'\+\w+\(([^)]+)\)', wordbases)
+                if match:
+                    verbal_lemma = match.group(1)
+                    results.append(('ADJ', verbal_lemma, 'voikko'))
+                    continue
+        
+        # Otherwise, use the standard POS mapping
         pos = map_voikko_pos(analysis)
         if pos:
             lemma = analysis.get('BASEFORM', surface_form)
