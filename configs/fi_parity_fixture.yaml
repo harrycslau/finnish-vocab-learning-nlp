@@ -1,0 +1,24 @@
+language:
+  short_code: fi
+  locale: fi_FI
+  lookup_table: fi_FI_lemma_lookup
+  rank_table: fi_FI_lemma_rank
+
+analyzer:
+  module: lang.fi.fixture_analyzer
+  class: FixtureFinnishAnalyzer
+  settings: {}
+
+paths:
+  freq_list: ../tests/fixtures/fi/freq_fixture.txt
+  output_dir: ../output
+
+output_names:
+  lemma_with_limit: "{short_code}_{limit}_lemmas.csv"
+  lemma_default: "{short_code}_fixture_lemmas.csv"
+  rank_with_limit: "{short_code}_{limit}_lemmas_rank.csv"
+  rank_default: "{short_code}_fixture_lemmas_rank.csv"
+  sqlite_default: "dictionary.sqlite"
+
+defaults: {}
+

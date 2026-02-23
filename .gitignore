@@ -1,1 +1,13 @@
 .venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Local artifacts
+output/*.json
+output/*.jsonl
+output/*.sqlite
+output/*.csv
+
+# Local language inputs
+data/freqwords/**/*.txt

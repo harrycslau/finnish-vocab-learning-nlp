@@ -1,0 +1,7 @@
+koira 50
+koirat 30
+juoksi 20
+juoksee 10
+on 100
+kuusi 40
+

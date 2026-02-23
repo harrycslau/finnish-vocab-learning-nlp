@@ -1,41 +1,68 @@
 # finnish-vocab-learning-nlp
 
-A small NLP project enable Finnish learners to learn new vocabulary. Still in its infancy.
+A small NLP project for vocabulary-learning data preparation.  
+The pipeline is now config-driven and organized to support multiple languages.
 
-## Data Preparation Pipeline
+## Install Dependencies
 
-Follow these steps to generate the lookup and rank data for the application.
-
-### 1. Generate Lemma Mapping
-Process a Finnish frequency list to create a mapping between surface forms and their lemmas using Voikko and spaCy.
 ```bash
-python create_lemma_table.py --limit 200000
+pip install -e .[core,fi]
 ```
-*   **Input**: `freqwords/fi_100k.txt` (or other frequency list)
-*   **Output**: `output/fi_200000_lemmas.csv`
 
-### 2. Compute Lemma Ranks
-Aggregate surface frequencies into lemma-level frequencies and assign ranks.
+## Repository Layout
+
+- `src/pipeline/`: language-agnostic pipeline logic
+- `src/lang/`: language-specific analyzer implementations
+- `configs/`: per-language YAML configs
+- `docs/sop/`: language SOP documents
+- `data/freqwords/`: recommended location for large local frequency lists (not committed)
+- Root scripts remain as compatibility entrypoints and call into `src/pipeline`.
+
+## Finnish Pipeline (Current)
+
+### 0. Universal workflow command
+For any configured language, the universal pipeline is:
 ```bash
-python compute_lemma_freq.py --lemma-csv output/fi_200000_lemmas.csv --freq-list freqwords/fi_100k.txt --output output/fi_200000_lemmas_rank.csv
+python build_lemma_assets.py --config configs/<lang>.yaml --limit <N>
 ```
-*   **Rule**: (from Revision 2) When a surface form has multiple lemmas, the script now credits all frequency to the lemma that accumulated the highest total across candidates.
-*   **Output**: `output/fi_200000_lemmas_rank.csv`
+This runs both steps:
+- lemma lookup generation
+- lemma rank generation
 
-
-### 3. Export to JSON (App Assets)
-Convert the CSV files to minified JSON with root keys for use in the app.
+### 1. Generate lemma mapping
 ```bash
-# Lookup JSON
+python create_lemma_table.py --config configs/fi.yaml --limit 200000
+```
+Input: `data/freqwords/fi/fi_100k.txt`  
+Current default config uses: `freqwords/fi_100k.txt`  
+Output: `output/fi_200000_lemmas.csv`
+
+### 2. Compute lemma ranks
+```bash
+python compute_lemma_freq.py --config configs/fi.yaml --lemma-csv output/fi_200000_lemmas.csv --freq-list freqwords/fi_100k.txt --output output/fi_200000_lemmas_rank.csv
+```
+Rule: when a surface form has multiple lemmas, all surface frequency is assigned to the highest-frequency lemma candidate.
+
+### 3. Export to JSON
+```bash
 python convert_csv_json.py output/fi_200000_lemmas.csv output/fi_FI_lookup_v1.json --key fi_FI_lemma_lookup --minify
-
-# Rank JSON
 python convert_csv_json.py output/fi_200000_lemmas_rank.csv output/fi_FI_rank_v1.json --key fi_FI_lemma_rank --minify
 ```
 
 ### 4. Export to SQLite
-Combine both lookup and rank data into a single SQLite database.
 ```bash
-python convert_lemma_table.py --lookup-csv output/fi_200000_lemmas.csv --rank-csv output/fi_200000_lemmas_rank.csv --output output/dictionary.sqlite --replace
+python convert_lemma_table.py --config configs/fi.yaml --lookup-csv output/fi_200000_lemmas.csv --rank-csv output/fi_200000_lemmas_rank.csv --output output/dictionary.sqlite --replace
 ```
-*   **Output**: `output/dictionary.sqlite` (Tables: `fi_FI_lemma_lookup`, `fi_FI_lemma_rank`)
+Output: `output/dictionary.sqlite` with `fi_FI_lemma_lookup` and `fi_FI_lemma_rank`.
+
+## SOPs
+
+- Finnish SOP: `docs/sop/fi.md`
+- New language template: `docs/sop/TEMPLATE.md`
+
+## Dependency Model
+
+- Shared pipeline (`build_lemma_assets.py`, rank/export utilities): `pip install -e .[core]`
+- Language analyzers are optional extras (for example Finnish): `pip install -e .[fi]`
+- If you already have a lemma CSV, you can skip analyzer dependencies:
+  - `python build_lemma_assets.py --config configs/<lang>.yaml --skip-lemma --lemma-output <existing_lemma_csv>`

@@ -1,0 +1,24 @@
+language:
+  short_code: xx
+  locale: xx_XX
+  lookup_table: xx_XX_lemma_lookup
+  rank_table: xx_XX_lemma_rank
+
+analyzer:
+  module: lang.<lang>.analyzer
+  class: <LanguageAnalyzerClass>
+  settings: {}
+
+paths:
+  freq_list: ../data/freqwords/<lang>/<file>.txt
+  output_dir: ../output
+
+output_names:
+  lemma_with_limit: "{short_code}_{limit}_lemmas.csv"
+  lemma_default: "{short_code}_100k_lemmas.csv"
+  rank_with_limit: "{short_code}_{limit}_lemmas_rank.csv"
+  rank_default: "{short_code}_lemmas_rank.csv"
+  sqlite_default: "{locale}.sqlite"
+
+defaults: {}
+

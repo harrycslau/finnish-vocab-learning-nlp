@@ -1,0 +1,29 @@
+language:
+  short_code: fi
+  locale: fi_FI
+  lookup_table: fi_FI_lemma_lookup
+  rank_table: fi_FI_lemma_rank
+
+analyzer:
+  module: lang.fi.analyzer
+  class: FinnishAnalyzer
+  settings:
+    voikko_language: fi
+    voikko_library_path: /opt/homebrew/opt/libvoikko/lib
+    spacy_model: fi_core_news_md
+    spacy_model_path: /Users/harrycslau/miniconda3/envs/lingoappenv/lib/python3.11/site-packages/fi_core_news_lg/fi_core_news_lg-3.8.0
+
+paths:
+  freq_list: ../freqwords/fi_100k.txt
+  output_dir: ../output
+
+output_names:
+  lemma_with_limit: "{short_code}_{limit}_lemmas.csv"
+  lemma_default: "{short_code}_100k_lemmas.csv"
+  rank_with_limit: "{short_code}_{limit}_lemmas_rank.csv"
+  rank_default: "{short_code}_lemmas_rank.csv"
+  sqlite_default: "dictionary.sqlite"
+
+defaults:
+  lemma_csv: ../output/fi_200000_lemmas.csv
+  rank_csv: ../output/fi_200000_lemmas_rank.csv
