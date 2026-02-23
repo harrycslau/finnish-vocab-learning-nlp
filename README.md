@@ -18,6 +18,11 @@ pip install -e .[core,fi]
 - `data/freqwords/`: recommended location for large local frequency lists (not committed)
 - Root scripts remain as compatibility entrypoints and call into `src/pipeline`.
 
+## Analyzer Requirement
+
+- Each language `analyzer.py` should use a morphology dictionary/lexicon that returns all valid lemma possibilities per surface form (including ambiguous POS when available).
+- A small language-specific library is acceptable if it returns multiple `(pos, lemma)` candidates.
+
 ## Finnish Pipeline (Current)
 
 ### 0. Universal workflow command
@@ -63,5 +68,6 @@ Output: `output/dictionary.sqlite` with `fi_FI_lemma_lookup` and `fi_FI_lemma_ra
 
 - Shared pipeline (`build_lemma_assets.py`, rank/export utilities): `pip install -e .[core]`
 - Language analyzers are optional extras (for example Finnish): `pip install -e .[fi]`
+- English analyzer extra (LemmInflect): `pip install -e .[en]`
 - If you already have a lemma CSV, you can skip analyzer dependencies:
   - `python build_lemma_assets.py --config configs/<lang>.yaml --skip-lemma --lemma-output <existing_lemma_csv>`

@@ -9,6 +9,7 @@
 ## 2. Validate config
 - Copy `configs/TEMPLATE.yaml` to `configs/<lang>.yaml`
 - Fill language/analyzer/path fields
+- `analyzer.py` should use a morphology dictionary/lexicon that can return all valid `(pos, lemma)` possibilities per surface form; this can be a language-specific lightweight library.
 - Run a smoke validation:
   - `python create_lemma_table.py --config configs/<lang>.yaml --limit 100`
 

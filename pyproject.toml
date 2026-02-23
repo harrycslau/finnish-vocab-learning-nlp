@@ -18,6 +18,9 @@ fi = [
   "spacy>=3.8,<4",
   "libvoikko>=4.3",
 ]
+en = [
+  "lemminflect>=0.2.3",
+]
 dev = [
   "pytest>=8.0",
   "mypy>=1.10",
@@ -31,4 +34,3 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
