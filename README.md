@@ -34,12 +34,11 @@ This runs both steps:
 python create_lemma_table.py --config configs/fi.yaml --limit 200000
 ```
 Input: `data/freqwords/fi/fi_100k.txt`  
-Current default config uses: `freqwords/fi_100k.txt`  
 Output: `output/fi_200000_lemmas.csv`
 
 ### 2. Compute lemma ranks
 ```bash
-python compute_lemma_freq.py --config configs/fi.yaml --lemma-csv output/fi_200000_lemmas.csv --freq-list freqwords/fi_100k.txt --output output/fi_200000_lemmas_rank.csv
+python compute_lemma_freq.py --config configs/fi.yaml --lemma-csv output/fi_200000_lemmas.csv --freq-list data/freqwords/fi/fi_100k.txt --output output/fi_200000_lemmas_rank.csv
 ```
 Rule: when a surface form has multiple lemmas, all surface frequency is assigned to the highest-frequency lemma candidate.
 

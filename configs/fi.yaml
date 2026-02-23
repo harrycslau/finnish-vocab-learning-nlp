@@ -14,7 +14,7 @@ analyzer:
     spacy_model_path: /Users/harrycslau/miniconda3/envs/lingoappenv/lib/python3.11/site-packages/fi_core_news_lg/fi_core_news_lg-3.8.0
 
 paths:
-  freq_list: ../freqwords/fi_100k.txt
+  freq_list: ../data/freqwords/fi/fi_100k.txt
   output_dir: ../output
 
 output_names:

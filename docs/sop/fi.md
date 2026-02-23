@@ -4,7 +4,7 @@
 - Install core + Finnish dependencies:
   - `pip install -e .[core,fi]`
 - Ensure Finnish frequency list exists:
-  - `freqwords/fi_100k.txt`
+  - `data/freqwords/fi/fi_100k.txt`
 
 ## 2. Config
 - Primary config: `configs/fi.yaml`
@@ -22,7 +22,7 @@
   - `python build_lemma_assets.py --config configs/fi.yaml --skip-lemma --lemma-output output/fi_200000_lemmas.csv --rank-output output/fi_200000_lemmas_rank.csv`
 
 ## 5. Compute lemma rank (standalone)
-- `python compute_lemma_freq.py --config configs/fi.yaml --lemma-csv output/fi_200000_lemmas.csv --freq-list freqwords/fi_100k.txt --output output/fi_200000_lemmas_rank.csv`
+- `python compute_lemma_freq.py --config configs/fi.yaml --lemma-csv output/fi_200000_lemmas.csv --freq-list data/freqwords/fi/fi_100k.txt --output output/fi_200000_lemmas_rank.csv`
 
 ## 6. Export app assets
 - Lookup JSON:
