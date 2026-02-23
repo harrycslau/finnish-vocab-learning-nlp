@@ -71,3 +71,37 @@ Output: `output/dictionary.sqlite` with `fi_FI_lemma_lookup` and `fi_FI_lemma_ra
 - English analyzer extra (LemmInflect): `pip install -e .[en]`
 - If you already have a lemma CSV, you can skip analyzer dependencies:
   - `python build_lemma_assets.py --config configs/<lang>.yaml --skip-lemma --lemma-output <existing_lemma_csv>`
+
+
+## Running the Pipeline
+
+### Preparation
+Prepare the freqwords file.
+Ask LLM to create the yaml file for the target language.
+Find suitable morph analyzer, and as LLM to create the analyzer.py for the target langauge.
+We will take "en" as an example below.
+
+### 1) Create lemmas and lemmas_rank CSV (Amend the *.yaml first!)
+PYTHONPATH=src .venv/bin/python -m pipeline.build_lemma_assets --config configs/en.yaml --limit 500000
+
+### 2) Lookup JSON
+PYTHONPATH=src .venv/bin/python -m pipeline.convert_csv_json \
+  output/en_500000_lemmas.csv \
+  output/en_US_lookup_v1.json \
+  --key en_US_lemma_lookup \
+  --minify
+
+### 3) Rank JSON
+PYTHONPATH=src .venv/bin/python -m pipeline.convert_csv_json \
+  output/en_500000_lemmas_rank.csv \
+  output/en_US_rank_v1.json \
+  --key en_US_lemma_rank \
+  --minify
+
+### 4) SQLite (both tables in one DB)
+PYTHONPATH=src .venv/bin/python -m pipeline.convert_lemma_table \
+  --config configs/en.yaml \
+  --lookup-csv output/en_500000_lemmas.csv \
+  --rank-csv output/en_500000_lemmas_rank.csv \
+  --output output/en_US_dictionary_v1.sqlite \
+  --replace

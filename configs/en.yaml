@@ -1,0 +1,26 @@
+language:
+  short_code: en
+  locale: en_US
+  lookup_table: en_US_lemma_lookup
+  rank_table: en_US_lemma_rank
+
+analyzer:
+  module: lang.en.analyzer
+  class: EnglishAnalyzer
+  settings:
+    lowercase_fallback: true
+
+paths:
+  freq_list: ../data/freqwords/en/en_1000k.txt
+  output_dir: ../output
+
+output_names:
+  lemma_with_limit: "{short_code}_{limit}_lemmas.csv"
+  lemma_default: "{short_code}_lemmas.csv"
+  rank_with_limit: "{short_code}_{limit}_lemmas_rank.csv"
+  rank_default: "{short_code}_lemmas_rank.csv"
+  sqlite_default: "dictionary.sqlite"
+
+defaults:
+  lemma_csv: ../output/en_100_lemmas.csv
+  rank_csv: ../output/en_100_lemmas_rank.csv
