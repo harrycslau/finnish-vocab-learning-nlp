@@ -9,6 +9,8 @@ analyzer:
   class: EnglishAnalyzer
   settings:
     lowercase_fallback: true
+    spacy_model: en_core_web_sm
+    spacy_model_path: null
 
 paths:
   freq_list: ../data/freqwords/en/en_1000k.txt

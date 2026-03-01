@@ -20,6 +20,7 @@ fi = [
 ]
 en = [
   "lemminflect>=0.2.3",
+  "spacy>=3.8,<4",
 ]
 dev = [
   "pytest>=8.0",

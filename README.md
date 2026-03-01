@@ -22,6 +22,8 @@ pip install -e .[core,fi]
 
 - Each language `analyzer.py` should use a morphology dictionary/lexicon that returns all valid lemma possibilities per surface form (including ambiguous POS when available).
 - A small language-specific library is acceptable if it returns multiple `(pos, lemma)` candidates.
+- Add a fallback analyzer path (for example spaCy) so tokens not covered by the lexicon are still emitted and not silently dropped.
+- For English: use LemmInflect for open-class ambiguity (NOUN/VERB/ADJ/ADV/PROPN/NUM), but rely on spaCy for closed-class/function words (DET/PRON/ADP/PART/CONJ/AUX) to avoid POS drift on high-frequency tokens like `the`, `a`, `to`, `in`.
 
 ## Finnish Pipeline (Current)
 
@@ -69,6 +71,7 @@ Output: `output/dictionary.sqlite` with `fi_FI_lemma_lookup` and `fi_FI_lemma_ra
 - Shared pipeline (`build_lemma_assets.py`, rank/export utilities): `pip install -e .[core]`
 - Language analyzers are optional extras (for example Finnish): `pip install -e .[fi]`
 - English analyzer extra (LemmInflect): `pip install -e .[en]`
+- For English, also install model data once: `.venv/bin/python -m spacy download en_core_web_sm`
 - If you already have a lemma CSV, you can skip analyzer dependencies:
   - `python build_lemma_assets.py --config configs/<lang>.yaml --skip-lemma --lemma-output <existing_lemma_csv>`
 
@@ -82,18 +85,18 @@ Find suitable morph analyzer, and as LLM to create the analyzer.py for the targe
 We will take "en" as an example below.
 
 ### 1) Create lemmas and lemmas_rank CSV (Amend the *.yaml first!)
-PYTHONPATH=src .venv/bin/python -m pipeline.build_lemma_assets --config configs/en.yaml --limit 500000
+PYTHONPATH=src .venv/bin/python -m pipeline.build_lemma_assets --config configs/en.yaml --limit 200000
 
 ### 2) Lookup JSON
 PYTHONPATH=src .venv/bin/python -m pipeline.convert_csv_json \
-  output/en_500000_lemmas.csv \
+  output/en_200000_lemmas.csv \
   output/en_US_lookup_v1.json \
   --key en_US_lemma_lookup \
   --minify
 
 ### 3) Rank JSON
 PYTHONPATH=src .venv/bin/python -m pipeline.convert_csv_json \
-  output/en_500000_lemmas_rank.csv \
+  output/en_200000_lemmas_rank.csv \
   output/en_US_rank_v1.json \
   --key en_US_lemma_rank \
   --minify
@@ -101,7 +104,7 @@ PYTHONPATH=src .venv/bin/python -m pipeline.convert_csv_json \
 ### 4) SQLite (both tables in one DB)
 PYTHONPATH=src .venv/bin/python -m pipeline.convert_lemma_table \
   --config configs/en.yaml \
-  --lookup-csv output/en_500000_lemmas.csv \
-  --rank-csv output/en_500000_lemmas_rank.csv \
+  --lookup-csv output/en_200000_lemmas.csv \
+  --rank-csv output/en_200000_lemmas_rank.csv \
   --output output/en_US_dictionary_v1.sqlite \
   --replace
